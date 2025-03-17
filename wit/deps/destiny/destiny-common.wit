@@ -1,0 +1,6 @@
+package destiny:common;
+
+interface types {
+  type user = string;
+  type store-name = string;
+}

@@ -23,6 +23,7 @@ wit-bindgen-rt = { workspace = true }
 path = "wit-generated"
 
 [package.metadata.component.target.dependencies]
+"destiny:common" = { path = "wit-generated/deps/destiny" }
 "destiny:store-exports" = { path = "wit-generated/deps/destiny_store-exports" }
 # See https://github.com/bytecodealliance/cargo-component/blob/main/src/metadata.rs#L62
 

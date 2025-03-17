@@ -1,7 +1,7 @@
 package destiny:store;
 
 interface destiny-store-api {
-    type user = string;
+    use destiny:common/types.{user};
 
     type destination-name = string;
 
@@ -93,4 +93,6 @@ interface destiny-store-api {
 
 world destiny-store {
   export destiny-store-api;
+
+  import destiny:common/types;
 }
