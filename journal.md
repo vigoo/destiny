@@ -44,3 +44,19 @@ Problem: we cannot encode it differently because we get the email from the auth 
 We do a workaround:
 - introducing a singleton component `destiny:accounts` that will do the mapping from email to user name (valid worker name)
 - use `__` instead of `/` in the store worker name as separator
+
+With these changes the first integration test passes.
+
+
+Next let's figure out how we want to develop the frontend. I want to try Dioxus. The idea is that we use Dioxus in frontend-only mode (not full stack as we have our backend as workers), and pack the UI files (html and wasm and assets) into a new worker called `destiny:ui` as initial file system. This component will be ephemeral and the API gateway will route to its static files.
+
+Let's try to set this up.
+
+`cargo install dioxus-cli`
+
+Creating a new dioxus app separately first with the `dx` tool to see how it is set up. Then we convert it to a golem component.
+
+Also a new `destiny:ui` rust component. Copy the barebones dioxus app to it. `dx serve` works in the `components-rust/destiny-ui` dir.
+To package it we run `dx bundle`. Let's integrate this into the app manifest.
+
+After some experiments with dioxus, let's try to make the first two endpoints with the api gateway.

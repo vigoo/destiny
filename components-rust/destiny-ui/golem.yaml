@@ -1,0 +1,57 @@
+# Schema for IDEA:
+# $schema: https://schema.golem.cloud/app/golem/1.1.1/golem.schema.json
+# Schema for vscode-yaml
+# yaml-language-server: $schema=https://schema.golem.cloud/app/golem/1.1.1/golem.schema.json
+
+components:
+  destiny:ui:
+    profiles:
+      debug:
+        files:
+          - sourcePath: /Users/vigoo/projects/oss/destiny/target/dx/ui/release/web/public
+            targetPath: /web/public
+            permissions: read-only
+        build:
+          - command: dx bundle --platform web
+            sources:
+              - src
+            targets:
+              - ../../target/dx/ui/release
+          - command: cargo component build --lib --no-default-features --features "component"
+            sources:
+              - src
+              - wit-generated
+              - ../../common-rust
+            targets:
+              - ../../target/wasm32-wasip1/debug/destiny_ui.wasm
+        sourceWit: wit
+        generatedWit: wit-generated
+        componentWasm: ../../target/wasm32-wasip1/debug/destiny_ui.wasm
+        linkedWasm: ../../golem-temp/components/destiny_ui_debug.wasm
+        clean:
+          - src/bindings.rs
+      release:
+        files:
+          - sourcePath: ../../target/dx/ui/release/web/public
+            targetPath: /web/public
+            permissions: read-only
+        build:
+          - command: dx bundle --platform web --release
+            sources:
+              - src
+            targets:
+              - ../../target/dx/ui/release
+          - command: cargo component build --lib --release --no-default-features --features "component"
+            sources:
+              - src
+              - wit-generated
+              - ../../common-rust
+            targets:
+              - ../../target/wasm32-wasip1/release/destiny_ui.wasm
+        sourceWit: wit
+        generatedWit: wit-generated
+        componentWasm: ../../target/wasm32-wasip1/release/destiny_ui.wasm
+        linkedWasm: ../../golem-temp/components/destiny_ui_release.wasm
+        clean:
+          - src/bindings.rs
+    defaultProfile: debug

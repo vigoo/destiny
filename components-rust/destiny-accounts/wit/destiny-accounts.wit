@@ -1,0 +1,13 @@
+package destiny:accounts;
+
+interface destiny-accounts-api {
+  use destiny:common/types.{user};
+
+  get-user-name: func(email: string) -> user;
+}
+
+world destiny-accounts {
+    export destiny-accounts-api;
+
+    import destiny:common/types;
+}

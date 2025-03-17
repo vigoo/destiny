@@ -6,6 +6,16 @@ members = ["components-rust/*", "common-rust/*"]
 opt-level = "s"
 lto = true
 
+[profile.wasm-dev]
+inherits = "dev"
+opt-level = 1
+
+[profile.server-dev]
+inherits = "dev"
+
+[profile.android-dev]
+inherits = "dev"
+
 [workspace.dependencies]
 golem-rust = "1.2.1"
 reqwest = { git = "https://github.com/zivergetech/reqwest", branch = "update-jun-2024", features = ["json"] }

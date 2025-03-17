@@ -1,0 +1,10 @@
+package destiny:ui;
+
+// See https://component-model.bytecodealliance.org/design/wit.html for more details about the WIT syntax
+
+interface destiny-ui-api {
+}
+
+world destiny-ui {
+  export destiny-ui-api;
+}
