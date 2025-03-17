@@ -110,6 +110,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "destiny_user"
+version = "0.0.1"
+dependencies = [
+ "destiny_model",
+ "golem-rust",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "wit-bindgen-rt 0.40.0",
+]
+
+[[package]]
 name = "displaydoc"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

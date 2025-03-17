@@ -5,7 +5,6 @@ Created the project and the first component (`destiny:store`) with golem cli.
 - Had to do a `git init` and added `.idea` to `.gitignore`
 - Renamed `common-lib` to `destiny-model` 
 - Defined an initial data model and API for the `store` in WIT
-- Changed rust edition to 2024
 - Added `#[allow(static_mut_refs)]` to the `mod bindings` to remove annoying warnings
 - Straightforward store implementation with in-memory state, some improvements of the WIT spec on the way
 
@@ -21,3 +20,7 @@ Decided to represent this change by introducing a resource where the user is the
 
 Had to introduce an "initialize" global export that can be only called once, and sets the initial owner.
 Had to change all result types to include error so we can indicate access denied.
+
+As a next step, created a new component `destiny:user`. Starting with it's WIT.
+
+While writing the initial implementation, realized that it is going to need to call the store `initialize` so we need RPC. 
