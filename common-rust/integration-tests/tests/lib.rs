@@ -28,6 +28,14 @@ async fn create_store_via_user() -> anyhow::Result<()> {
         },
     };
 
+    let accounts_component_id = component_client
+        .get_components(Some("destiny:accounts"))
+        .await
+        .map_err(|err| anyhow!(format!("{err:?}")))?
+        .first()
+        .unwrap()
+        .versioned_component_id
+        .component_id;
     let user_component_id = component_client
         .get_components(Some("destiny:user"))
         .await
@@ -46,58 +54,84 @@ async fn create_store_via_user() -> anyhow::Result<()> {
         .component_id;
 
     let user1 = format!("{}@test.com", Uuid::new_v4());
+    let Value::String(username) = extract_result_tuple(
+        worker_client
+            .invoke_and_await_function(
+                &accounts_component_id,
+                "accounts",
+                None,
+                "destiny:accounts-exports/destiny-accounts-api.{get-user-name}(",
+                &InvokeParameters {
+                    params: vec![user1.into_value_and_type().try_into().unwrap()],
+                },
+            )
+            .await
+            .map_err(|err| anyhow!(format!("{err:?}")))?
+            .result
+            .try_into()
+            .map_err(|err| anyhow!(format!("{err:?}")))?,
+    )?
+    else {
+        panic!("Expected a string response from get-user-name");
+    };
 
-    let initial_store_list: Value = worker_client
-        .invoke_and_await_function(
-            &user_component_id,
-            &user1,
-            None,
-            "destiny::user-exports/destiny-user-api.{stores}",
-            &InvokeParameters { params: vec![] },
-        )
-        .await
-        .map_err(|err| anyhow!(format!("{err:?}")))?
-        .result
-        .try_into()
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
+    let initial_store_list: Value = extract_result_tuple(
+        worker_client
+            .invoke_and_await_function(
+                &user_component_id,
+                &username,
+                None,
+                "destiny:user-exports/destiny-user-api.{stores}",
+                &InvokeParameters { params: vec![] },
+            )
+            .await
+            .map_err(|err| anyhow!(format!("{err:?}")))?
+            .result
+            .try_into()
+            .map_err(|err| anyhow!(format!("{err:?}")))?,
+    )?;
 
-    let create_store_result: Value = worker_client
-        .invoke_and_await_function(
-            &user_component_id,
-            &user1,
-            None,
-            "destiny::user-exports/destiny-user-api.{create-store}",
-            &InvokeParameters {
-                params: vec!["store1".into_value_and_type().try_into().unwrap()],
-            },
-        )
-        .await
-        .map_err(|err| anyhow!(format!("{err:?}")))?
-        .result
-        .try_into()
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
+    let create_store_result: Value = extract_result_tuple(
+        worker_client
+            .invoke_and_await_function(
+                &user_component_id,
+                &username,
+                None,
+                "destiny:user-exports/destiny-user-api.{create-store}",
+                &InvokeParameters {
+                    params: vec!["store1".into_value_and_type().try_into().unwrap()],
+                },
+            )
+            .await
+            .map_err(|err| anyhow!(format!("{err:?}")))?
+            .result
+            .try_into()
+            .map_err(|err| anyhow!(format!("{err:?}")))?,
+    )?;
 
-    let updated_store_list: Value = worker_client
-        .invoke_and_await_function(
-            &user_component_id,
-            &user1,
-            None,
-            "destiny::user-exports/destiny-user-api.{stores}",
-            &InvokeParameters { params: vec![] },
-        )
-        .await
-        .map_err(|err| anyhow!(format!("{err:?}")))?
-        .result
-        .try_into()
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
+    let updated_store_list: Value = extract_result_tuple(
+        worker_client
+            .invoke_and_await_function(
+                &user_component_id,
+                &username,
+                None,
+                "destiny:user-exports/destiny-user-api.{stores}",
+                &InvokeParameters { params: vec![] },
+            )
+            .await
+            .map_err(|err| anyhow!(format!("{err:?}")))?
+            .result
+            .try_into()
+            .map_err(|err| anyhow!(format!("{err:?}")))?,
+    )?;
 
-    let initial_home_location: Value = worker_client
+    let initial_home_location: Value = extract_result_tuple(worker_client
         .invoke_and_await_function(
             &store_component_id,
-            &format!("{user1}/store1"),
+            &format!("{username}__store1"),
             None,
             &format!(
-                "destiny::store-exports/destiny-store-api.{{store(\"{user1}\").get-home-location}}"
+                "destiny:store-exports/destiny-store-api.{{store(\"{username}\").get-home-location}}"
             ),
             &InvokeParameters { params: vec![] },
         )
@@ -105,14 +139,29 @@ async fn create_store_via_user() -> anyhow::Result<()> {
         .map_err(|err| anyhow!(format!("{err:?}")))?
         .result
         .try_into()
-        .map_err(|err| anyhow!(format!("{err:?}")))?;
+        .map_err(|err| anyhow!(format!("{err:?}")))?)?;
 
     assert_eq!(initial_store_list, Value::List(Vec::new()));
-    assert_eq!(create_store_result, Value::Bool(true));
-    assert_eq!(updated_store_list, Value::List(vec![Value::String("store1".to_string())]));
-    assert_eq!(initial_home_location, Value::String("Kosd, Hungary".to_string()));
+    assert_eq!(create_store_result, Value::Result(Ok(None)));
+    assert_eq!(
+        updated_store_list,
+        Value::List(vec![Value::String("store1".to_string())])
+    );
+    assert_eq!(
+        initial_home_location,
+        Value::Result(Ok(Some(Box::new(Value::String(
+            "Kosd, Hungary".to_string()
+        )))))
+    );
 
     Ok(())
+}
+
+fn extract_result_tuple(value: Value) -> anyhow::Result<Value> {
+    match value {
+        Value::Tuple(t) => Ok(t[0].clone()),
+        _ => Err(anyhow!("Expected a tuple response, got ${value:?}")),
+    }
 }
 
 fn new_reqwest_client() -> anyhow::Result<reqwest::Client> {

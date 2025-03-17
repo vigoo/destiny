@@ -951,6 +951,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "destiny_accounts"
+version = "0.0.1"
+dependencies = [
+ "destiny_model",
+ "golem-rust",
+ "reqwest 0.11.18",
+ "serde",
+ "serde_json",
+ "uuid",
+ "wit-bindgen-rt 0.40.0",
+]
+
+[[package]]
 name = "destiny_model"
 version = "0.1.0"
 dependencies = [

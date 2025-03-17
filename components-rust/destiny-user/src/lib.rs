@@ -42,16 +42,16 @@ impl Guest for Component {
 }
 
 fn initialize_store_worker(name: &StoreName) {
-    let owner_email: User =
+    let owner_user: User =
         env::var("GOLEM_WORKER_NAME").expect("GOLEM_WORKER_NAME is not available");
-    let worker_id = resolve_worker_id("destiny:store", &store_worker_name(&owner_email, name))
+    let worker_id = resolve_worker_id("destiny:store", &store_worker_name(&owner_user, name))
         .expect("Failed to resolve store worker ID");
     let target_uri = worker_uri(&worker_id);
 
     let remote_api = DestinyStoreApi::new(&GolemRpcUri {
         value: target_uri.value,
     });
-    let success = remote_api.blocking_initialize(&owner_email);
+    let success = remote_api.blocking_initialize(&owner_user);
     if !success {
         panic!("Failed to initialize store worker - it already existed");
     }
