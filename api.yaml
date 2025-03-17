@@ -30,7 +30,9 @@ routes:
         let worker = instance(user);
         let result = worker.create-store(request.body);
 
-        match res {
-          ok(_) => { status: 200, body: empty },
-          err(already-exists) => { status: 400, body: "Store already exists" },
-        }
+        let response = match result {
+          ok(_) => { status: 200u64, body: "" },
+          err(_) => { status: 400u64, body: "Store already exists" }
+        };
+        
+        response

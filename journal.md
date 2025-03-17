@@ -73,3 +73,24 @@ We don't set up the auth yet so the script will have
 let email = "user@test.com";
 ```
 instead.
+
+NOTE: In commit e6327a50e6d27d045be1625d3df744f7151e98f3 the api yaml produces very weird rib parse error.
+
+Registering and deploying the api
+
+```
+golem api definition new api.yaml
+golem api definition update api.yaml
+golem api deployment deploy destiny-api-v1/0.0.1 --host localhost:9006
+```
+
+First try with curl, we get
+```
+curl -v localhost:9006/api/stores
+
+Failed to map input type Str(TypeStr) to any of the expected content types: "\"*/*\""
+```
+`-H "Accept: application/json"` fixes it
+
+We cannot try this out at the moment from `dx serve` because of CORS. Can we fix that?
+
