@@ -7,5 +7,5 @@ Created the project and the first component (`destiny:store`) with golem cli.
 - Defined an initial data model and API for the `store` in WIT
 - Changed rust edition to 2024
 - Added `#[allow(static_mut_refs)]` to the `mod bindings` to remove annoying warnings 
-- Straightforward store implementation with in-memory state
+- Straightforward store implementation with in-memory state, some improvements of the WIT spec on the way
 - 

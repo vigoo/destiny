@@ -1,6 +1,8 @@
 package destiny:store;
 
 interface destiny-store-api {
+    type destination-name = string;
+
     enum month {
         january,
         february,
@@ -38,7 +40,7 @@ interface destiny-store-api {
     }
 
     record destination {
-        name: string,
+        name: destination-name,
         user-defined-destination: user-defined-destination,
     }
 
@@ -59,17 +61,22 @@ interface destiny-store-api {
 
     type currency = string;
 
+    variant error {
+        not-found(destination-name),
+        already-exists(destination-name),
+    }
+
     set-currency: func(currency: currency);
     get-currency: func() -> currency;
 
     set-home-location: func(location: string);
     get-home-location: func() -> string;
 
-    add-destination: func(name: string, destination: user-defined-destination);
-    update-destination: func(name: string, destination: user-defined-destination);
-    get-destination: func(name: string) -> destination;
+    add-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
+    update-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
+    get-destination: func(name: destination-name) -> option<destination>;
     get-destinations: func() -> list<destination>;
-    remove-destination: func(name: string);
+    remove-destination: func(name: destination-name) -> result<_, error>;
 
     get-ordered-destinations: func(preferences: preferences) -> list<destination>;
 }
