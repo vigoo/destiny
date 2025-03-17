@@ -1,6 +1,8 @@
 package destiny:store;
 
 interface destiny-store-api {
+    type user = string;
+
     type destination-name = string;
 
     enum month {
@@ -64,21 +66,26 @@ interface destiny-store-api {
     variant error {
         not-found(destination-name),
         already-exists(destination-name),
+        access-denied,
     }
 
-    set-currency: func(currency: currency);
-    get-currency: func() -> currency;
+    resource store {
+        constructor(user: user);
 
-    set-home-location: func(location: string);
-    get-home-location: func() -> string;
+        set-currency: func(currency: currency);
+        get-currency: func() -> currency;
 
-    add-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
-    update-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
-    get-destination: func(name: destination-name) -> option<destination>;
-    get-destinations: func() -> list<destination>;
-    remove-destination: func(name: destination-name) -> result<_, error>;
+        set-home-location: func(location: string);
+        get-home-location: func() -> string;
 
-    get-ordered-destinations: func(preferences: preferences) -> list<destination>;
+        add-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
+        update-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
+        get-destination: func(name: destination-name) -> option<destination>;
+        get-destinations: func() -> list<destination>;
+        remove-destination: func(name: destination-name) -> result<_, error>;
+
+        get-ordered-destinations: func(preferences: preferences) -> list<destination>;
+    }
 }
 
 world destiny-store {
