@@ -67,25 +67,28 @@ interface destiny-store-api {
         not-found(destination-name),
         already-exists(destination-name),
         access-denied,
+        not-initialized
     }
 
     resource store {
         constructor(user: user);
 
-        set-currency: func(currency: currency);
-        get-currency: func() -> currency;
+        set-currency: func(currency: currency) -> result<_, error>;
+        get-currency: func() -> result<currency, error>;
 
-        set-home-location: func(location: string);
-        get-home-location: func() -> string;
+        set-home-location: func(location: string) -> result<_, error>;
+        get-home-location: func() -> result<string, error>;
 
         add-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
         update-destination: func(name: destination-name, destination: user-defined-destination) -> result<_, error>;
-        get-destination: func(name: destination-name) -> option<destination>;
-        get-destinations: func() -> list<destination>;
+        get-destination: func(name: destination-name) -> result<option<destination>, error>;
+        get-destinations: func() -> result<list<destination>, error>;
         remove-destination: func(name: destination-name) -> result<_, error>;
 
-        get-ordered-destinations: func(preferences: preferences) -> list<destination>;
+        get-ordered-destinations: func(preferences: preferences) -> result<list<destination>, error>;
     }
+
+    initialize: func(user: user) -> bool;
 }
 
 world destiny-store {

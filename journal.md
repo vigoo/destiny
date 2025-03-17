@@ -19,3 +19,5 @@ Based on this, came up with the following initial architecture:
 We add an an `email` parameter to each store operation that will be filled by the logged-in user's token. We also have to store a list of allowed users in the store state.
 Decided to represent this change by introducing a resource where the user is the constructor and move all exported functions to that. Did this change in WIT and code.
 
+Had to introduce an "initialize" global export that can be only called once, and sets the initial owner.
+Had to change all result types to include error so we can indicate access denied.

@@ -5,30 +5,95 @@ mod logic;
 use crate::bindings::exports::destiny::store_exports::destiny_store_api::*;
 use crate::logic::{DestinationExtensions, PreferencesExtensions};
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 struct State {
+    owner: Option<User>,
+    shared_with: HashSet<User>,
     currency: Currency,
     home_location: String,
     destinations: HashMap<String, Destination>,
 }
 
+impl State {
+    pub fn authorize(&self, user: &User) -> Result<(), Error> {
+        if let Some(owner) = &self.owner {
+            if owner == user {
+                Ok(())
+            } else {
+                if self.shared_with.contains(user) {
+                    Ok(())
+                } else {
+                    Err(Error::AccessDenied)
+                }
+            }
+        } else {
+            Err(Error::NotInitialized)
+        }
+    }
+}
+
 thread_local! {
     static STATE: RefCell<State> = RefCell::new(State {
+        owner: None,
+        shared_with: HashSet::new(),
         currency: "HUF".to_string(),
         home_location: "Kosd, Hungary".to_string(),
         destinations: HashMap::new()
     });
 }
 
-struct Component;
+struct StoreAccess {
+    user: User,
+}
 
-impl Guest for Component {
+impl GuestStore for StoreAccess {
+    fn new(user: User) -> Self {
+        Self { user }
+    }
+
+    fn set_currency(&self, currency: Currency) -> Result<(), Error> {
+        STATE.with_borrow_mut(|state| {
+            state.authorize(&self.user)?;
+
+            state.currency = currency;
+            Ok(())
+        })
+    }
+
+    fn get_currency(&self) -> Result<Currency, Error> {
+        STATE.with_borrow(|state| {
+            state.authorize(&self.user)?;
+
+            Ok(state.currency.clone())
+        })
+    }
+
+    fn set_home_location(&self, location: String) -> Result<(), Error> {
+        STATE.with_borrow_mut(|state| {
+            state.authorize(&self.user)?;
+
+            state.home_location = location;
+            Ok(())
+        })
+    }
+
+    fn get_home_location(&self) -> Result<String, Error> {
+        STATE.with_borrow(|state| {
+            state.authorize(&self.user)?;
+
+            Ok(state.home_location.clone())
+        })
+    }
+
     fn add_destination(
+        &self,
         name: DestinationName,
         destination: UserDefinedDestination,
     ) -> Result<(), Error> {
         STATE.with_borrow_mut(|state| {
+            state.authorize(&self.user)?;
+
             if state.destinations.contains_key(&name) {
                 Err(Error::AlreadyExists(name))
             } else {
@@ -44,37 +109,43 @@ impl Guest for Component {
         })
     }
 
-    fn get_currency() -> Currency {
-        STATE.with_borrow(|state| state.currency.clone())
-    }
+    fn update_destination(
+        &self,
+        name: DestinationName,
+        destination: UserDefinedDestination,
+    ) -> Result<(), Error> {
+        STATE.with_borrow_mut(|state| {
+            state.authorize(&self.user)?;
 
-    fn get_destination(name: DestinationName) -> Option<Destination> {
-        STATE.with_borrow(|state| state.destinations.get(&name).cloned())
-    }
-
-    fn get_destinations() -> Vec<Destination> {
-        STATE.with_borrow(|state| state.destinations.values().cloned().collect())
-    }
-
-    fn get_home_location() -> String {
-        STATE.with_borrow(|state| state.home_location.clone())
-    }
-
-    fn get_ordered_destinations(preferences: Preferences) -> Vec<Destination> {
-        STATE.with_borrow(|state| {
-            let mut destinations: Vec<_> = state
-                .destinations
-                .values()
-                .filter(|destination| preferences.filter(destination))
-                .cloned()
-                .collect();
-            destinations.sort_by_key(|destination| destination.rating(&preferences.month));
-            destinations
+            if let Some(dest) = state.destinations.get_mut(&name) {
+                dest.user_defined_destination = destination;
+                Ok(())
+            } else {
+                Err(Error::NotFound(name))
+            }
         })
     }
 
-    fn remove_destination(name: DestinationName) -> Result<(), Error> {
+    fn get_destination(&self, name: DestinationName) -> Result<Option<Destination>, Error> {
+        STATE.with_borrow(|state| {
+            state.authorize(&self.user)?;
+
+            Ok(state.destinations.get(&name).cloned())
+        })
+    }
+
+    fn get_destinations(&self) -> Result<Vec<Destination>, Error> {
+        STATE.with_borrow(|state| {
+            state.authorize(&self.user)?;
+
+            Ok(state.destinations.values().cloned().collect())
+        })
+    }
+
+    fn remove_destination(&self, name: DestinationName) -> Result<(), Error> {
         STATE.with_borrow_mut(|state| {
+            state.authorize(&self.user)?;
+
             if let Some(_) = state.destinations.remove(&name) {
                 Ok(())
             } else {
@@ -83,26 +154,37 @@ impl Guest for Component {
         })
     }
 
-    fn set_currency(currency: Currency) {
-        STATE.with_borrow_mut(|state| {
-            state.currency = currency;
+    fn get_ordered_destinations(
+        &self,
+        preferences: Preferences,
+    ) -> Result<Vec<Destination>, Error> {
+        STATE.with_borrow(|state| {
+            state.authorize(&self.user)?;
+
+            let mut destinations: Vec<_> = state
+                .destinations
+                .values()
+                .filter(|destination| preferences.filter(destination))
+                .cloned()
+                .collect();
+            destinations.sort_by_key(|destination| destination.rating(&preferences.month));
+            Ok(destinations)
         })
     }
+}
 
-    fn set_home_location(location: String) {
-        STATE.with_borrow_mut(|state| state.home_location = location)
-    }
+struct Component;
 
-    fn update_destination(
-        name: DestinationName,
-        destination: UserDefinedDestination,
-    ) -> Result<(), Error> {
+impl Guest for Component {
+    type Store = StoreAccess;
+
+    fn initialize(user: User) -> bool {
         STATE.with_borrow_mut(|state| {
-            if let Some(dest) = state.destinations.get_mut(&name) {
-                dest.user_defined_destination = destination;
-                Ok(())
+            if state.owner.is_none() {
+                state.owner = Some(user);
+                true
             } else {
-                Err(Error::NotFound(name))
+                false
             }
         })
     }
