@@ -1,0 +1,23 @@
+[package]
+name = "integration_tests"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+harness = false
+
+[[test]]
+name = "test"
+path = "tests/lib.rs"
+harness = false
+
+[dependencies]
+golem-client = "1.2.0-rc2"
+uuid = { version = "1.16.0", features = ["v4"] }
+
+[dev-dependencies]
+anyhow = "1.0"
+golem-wasm-rpc = "1.2.0-rc2"
+reqwest = "0.12"
+test-r = "2.1.0"
+uuid = "1.16"

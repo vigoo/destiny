@@ -29,3 +29,18 @@ So added the dependency to the root golem.yaml.
 To implement it we need to resolve worker id from owner email and store name. To keep things typesafe (even though they are strings now) decided to move the `user` wit type to a common WIT file and generate the bindings in the shared `destiny_model` crate.
 
 With that set implemented calling `initialize` using RPC.
+
+At this point, before we figure out how to create API mappings and UI, let's try to write _integration tests_ for the store and user components.
+Plan:
+- start local golem or assume it is running
+- use the user and store components directly through the invocation API
+- implement it as rust tests, use teh `golem-client` rust crate for communication
+
+After writing the first integration test, realized that:
+**Invalid worker name: Worker name must contain only alphanumeric characters, underscores, and dashes**
+
+Problem: we cannot encode it differently because we get the email from the auth token and we have to encode it with Rib!
+
+We do a workaround:
+- introducing a singleton component `destiny:accounts` that will do the mapping from email to user name (valid worker name)
+- use `__` instead of `/` in the store worker name as separator
