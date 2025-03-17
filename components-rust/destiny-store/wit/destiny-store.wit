@@ -1,10 +1,77 @@
 package destiny:store;
 
-// See https://component-model.bytecodealliance.org/design/wit.html for more details about the WIT syntax
-
 interface destiny-store-api {
-  add: func(value: u64);
-  get: func() -> u64;
+    enum month {
+        january,
+        february,
+        march,
+        april,
+        may,
+        june,
+        july,
+        august,
+        september,
+        october,
+        november,
+        december,
+    }
+
+    flags travel-length {
+        weekend,
+        long-weekend,
+        week,
+        two-weeks,
+        three-weeks
+    }
+
+    enum rating {
+        not-good,
+        good,
+        best
+    }
+
+    flags travel-by {
+        car,
+        motorbike,
+        plane,
+        train,
+    }
+
+    record destination {
+        name: string,
+        user-defined-destination: user-defined-destination,
+    }
+
+    record user-defined-destination {
+        approximated-travel-cost: option<u32>,
+        approximated-daily-cost: option<u32>,
+        lengths: option<travel-length>,
+        month-ratings: option<list<tuple<month, rating>>>,
+        description: option<string>,
+        travel-by: option<travel-by>,
+    }
+
+    record preferences {
+        month: month,
+        lengths: option<travel-length>,
+        travel-by: option<travel-by>,
+    }
+
+    type currency = string;
+
+    set-currency: func(currency: currency);
+    get-currency: func() -> currency;
+
+    set-home-location: func(location: string);
+    get-home-location: func() -> string;
+
+    add-destination: func(name: string, destination: user-defined-destination);
+    update-destination: func(name: string, destination: user-defined-destination);
+    get-destination: func(name: string) -> destination;
+    get-destinations: func() -> list<destination>;
+    remove-destination: func(name: string);
+
+    get-ordered-destinations: func(preferences: preferences) -> list<destination>;
 }
 
 world destiny-store {
