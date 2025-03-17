@@ -1,0 +1,12 @@
+package destiny:store;
+
+// See https://component-model.bytecodealliance.org/design/wit.html for more details about the WIT syntax
+
+interface destiny-store-api {
+  add: func(value: u64);
+  get: func() -> u64;
+}
+
+world destiny-store {
+  export destiny-store-api;
+}
