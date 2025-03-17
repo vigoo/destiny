@@ -7,3 +7,8 @@ generate!({
     generate_unused_types: true
 });
 
+use crate::destiny::common::types::*;
+
+pub fn store_worker_name(owner: &User, store_name: &StoreName) -> String {
+    format!("{}/{}", owner, store_name)
+}

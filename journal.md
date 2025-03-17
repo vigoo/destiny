@@ -27,3 +27,5 @@ While writing the initial implementation, realized that it is going to need to c
 So added the dependency to the root golem.yaml.
 
 To implement it we need to resolve worker id from owner email and store name. To keep things typesafe (even though they are strings now) decided to move the `user` wit type to a common WIT file and generate the bindings in the shared `destiny_model` crate.
+
+With that set implemented calling `initialize` using RPC.
