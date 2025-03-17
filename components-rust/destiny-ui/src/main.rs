@@ -32,13 +32,12 @@ fn App() -> Element {
 #[component]
 pub fn StoreList() -> Element {
     let mut store_names = use_resource(|| async move {
-        vec!["store 1".to_string(), "store 2".to_string()]
-        // reqwest::get(format!("{DESTINY_BASE_URL}/api/stores"))
-        //     .await
-        //     .expect("Failed to fetch stores")
-        //     .json::<Vec<StoreName>>()
-        //     .await
-        //     .expect("Failed to decode list of stores")
+        reqwest::get(format!("{DESTINY_BASE_URL}/api/stores"))
+            .await
+            .expect("Failed to fetch stores")
+            .json::<Vec<StoreName>>()
+            .await
+            .expect("Failed to decode list of stores")
     });
 
     let mut new_store_name = use_signal(|| "".to_string());

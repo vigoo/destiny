@@ -1,0 +1,36 @@
+id: destiny-api-v1
+draft: true
+version: 0.0.1
+routes:
+  - method: Get
+    path: /api/stores
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 3e74449d-2842-41a3-b94c-b68f2b1e1c06
+        version: 5
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let worker = instance(user);
+        let stores = worker.stores();
+        {status: 200, body: stores }
+  - method: Post
+    path: /api/stores
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 3e74449d-2842-41a3-b94c-b68f2b1e1c06
+        version: 5
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let worker = instance(user);
+        let result = worker.create-store(request.body);
+
+        match res {
+          ok(_) => { status: 200, body: empty },
+          err(already-exists) => { status: 400, body: "Store already exists" },
+        }

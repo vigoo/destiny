@@ -1,6 +1,7 @@
 #[allow(static_mut_refs)]
 mod bindings;
 
+use crate::bindings::destiny::accounts_client::destiny_accounts_client::DestinyAccountsApi;
 use crate::bindings::destiny::store_client::destiny_store_client::{DestinyStoreApi, GolemRpcUri};
 use crate::bindings::destiny::store_exports::destiny_store_api::User;
 use crate::bindings::exports::destiny::user_exports::destiny_user_api::*;
@@ -34,6 +35,18 @@ impl Guest for Component {
                 Ok(())
             }
         })
+    }
+
+    fn get_user_name(
+        email: String,
+    ) -> bindings::exports::destiny::user_exports::destiny_user_api::User {
+        let worker_id = resolve_worker_id("destiny:accounts", "__accounts_proxy")
+            .expect("Failed to resolve worker_id");
+        let target_uri = worker_uri(&worker_id);
+        let remote_api = DestinyAccountsApi::new(&GolemRpcUri {
+            value: target_uri.value,
+        });
+        remote_api.blocking_get_user_name(&email)
     }
 
     fn stores() -> Vec<StoreName> {

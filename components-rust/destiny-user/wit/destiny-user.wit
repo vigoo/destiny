@@ -1,7 +1,7 @@
 package destiny:user;
 
 interface destiny-user-api {
-    use destiny:common/types.{store-name};
+    use destiny:common/types.{store-name, user};
 
     variant error {
         already-exists
@@ -9,6 +9,9 @@ interface destiny-user-api {
 
     stores: func() -> list<store-name>;
     create-store: func(name: store-name) -> result<_, error>;
+
+    // Hack to proxy request to destiny:accounts
+    get-user-name: func(email: string) -> user;
 }
 
 world destiny-user {

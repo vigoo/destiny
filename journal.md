@@ -60,3 +60,16 @@ Also a new `destiny:ui` rust component. Copy the barebones dioxus app to it. `dx
 To package it we run `dx bundle`. Let's integrate this into the app manifest.
 
 After some experiments with dioxus, let's try to make the first two endpoints with the api gateway.
+
+New issues!
+- We need to know the deployed component ID and we the cli does not print it now. But we can get it from the log (for now)
+- Bigger problem: the `destiny:accounts` trick will not work because we cannot call two different components from a single endpoint's rib script
+
+For the second we can do an even bigger hack to workaround it:
+we can export a proxy for the accounts api in the `destiny:user` component, and spawn an ephemeral instance from the rib script
+to call it.
+We don't set up the auth yet so the script will have
+```rib
+let email = "user@test.com";
+```
+instead.

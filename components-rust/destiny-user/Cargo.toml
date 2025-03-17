@@ -29,10 +29,12 @@ wit-bindgen-rt = { workspace = true }
 path = "wit-generated"
 
 [package.metadata.component.target.dependencies]
-"destiny:common" = { path = "wit-generated/deps/destiny" }
 "wasi:io" = { path = "wit-generated/deps/io" }
 "wasi:clocks" = { path = "wit-generated/deps/clocks" }
 "golem:rpc" = { path = "wit-generated/deps/wasm-rpc" }
+"destiny:common" = { path = "wit-generated/deps/destiny" }
+"destiny:accounts-exports" = { path = "wit-generated/deps/destiny_accounts-exports" }
+"destiny:accounts-client" = { path = "wit-generated/deps/destiny_accounts-client" }
 "destiny:store-exports" = { path = "wit-generated/deps/destiny_store-exports" }
 "destiny:store-client" = { path = "wit-generated/deps/destiny_store-client" }
 "destiny:user-exports" = { path = "wit-generated/deps/destiny_user-exports" }
