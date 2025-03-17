@@ -24,3 +24,6 @@ Had to change all result types to include error so we can indicate access denied
 As a next step, created a new component `destiny:user`. Starting with it's WIT.
 
 While writing the initial implementation, realized that it is going to need to call the store `initialize` so we need RPC. 
+So added the dependency to the root golem.yaml.
+
+To implement it we need to resolve worker id from owner email and store name. To keep things typesafe (even though they are strings now) decided to move the `user` wit type to a common WIT file and generate the bindings in the shared `destiny_model` crate.

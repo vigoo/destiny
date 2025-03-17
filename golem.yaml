@@ -8,3 +8,9 @@ includes:
 - components-*/*/golem.yaml
 witDeps:
 - wit/deps
+
+
+dependencies:
+  destiny:user:
+    - type: wasm-rpc
+      target: destiny:store
