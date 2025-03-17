@@ -1,1 +1,5 @@
 package common:root;
+
+world common {
+    import destiny:common/types;
+}

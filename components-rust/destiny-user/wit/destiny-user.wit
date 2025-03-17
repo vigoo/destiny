@@ -1,0 +1,18 @@
+package destiny:user;
+
+interface destiny-user-api {
+    use destiny:common/types.{store-name};
+
+    variant error {
+        already-exists
+    }
+
+    stores: func() -> list<store-name>;
+    create-store: func(name: store-name) -> result<_, error>;
+}
+
+world destiny-user {
+    export destiny-user-api;
+
+    import destiny:common/types;
+}
