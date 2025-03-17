@@ -16,3 +16,6 @@ dependencies:
       target: destiny:store
     - type: wasm-rpc
       target: destiny:accounts
+  destiny:store:
+    - type: wasm-rpc
+      target: destiny:accounts

@@ -95,5 +95,38 @@ Failed to map input type Str(TypeStr) to any of the expected content types: "\"*
 We cannot try this out at the moment from `dx serve` because of CORS. Can we fix that?
 Yes by adding a new route. Needs to delete deployment, register a new definition and deploy it again.
 
+As a next step, let's serve the UI through the API gateway.
+
+First we need to change the golem:ui component type to ephemeral. Then we change the dioxus routing to 
+have a `/ui` prefix because we cannot define at the moment bindings for `/` in the api gateway.
+Then we bind `/ui</*>` to `/web/public/index.html` and `/*` to `/web/public/$1` on the ephemeral ui worker.
 
 
+Adding more UI implementation.
+Turns out if we add API to `destiny:store` we are going to need to add a accounts proxy there too.
+
+Then ran into a weird error:
+
+```rib
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let store_name = request.path.store;
+        let store_worker_name = "${user}__${store_name}";
+        let worker = instance(store_worker_name);
+        let store = worker.store(user);
+        let result = store.get-currency();
+        
+        match result {
+          ok(currency) => { status: 200u64, body: currency },
+          err(error) => { status: 404u64, body: "Failed to get currency: ${error}" }
+        }
+```
+
+gives 
+
+```
+error: API Definition Service - Error: 500 Internal Server Error, Rib internal error: Global variables not allowed: user. Allowed: request
+```
+
+no idea why?

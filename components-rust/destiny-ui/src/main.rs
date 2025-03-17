@@ -1,4 +1,4 @@
-use destiny_model::destiny::common::types::StoreName;
+use destiny_model::destiny::common::types::{StoreName, User};
 use dioxus::prelude::*;
 use reqwest::Client;
 
@@ -13,12 +13,12 @@ fn main() {
 
 #[derive(Routable, Clone, PartialEq)]
 enum Route {
-    #[route("/")]
+    #[route("/ui")]
     StoreList,
-    #[route("/store/edit/:name")]
-    StoreEdit { name: StoreName },
-    #[route("/store/:name")]
-    StoreView { name: StoreName },
+    #[route("/ui/store/edit/:owner/:name")]
+    StoreEdit { owner: User, name: StoreName },
+    #[route("/ui/store/:owner/:name")]
+    StoreView { owner: User, name: StoreName },
 }
 
 #[component]
@@ -41,7 +41,7 @@ pub fn StoreList() -> Element {
             .send()
             .await
             .expect("Failed to fetch stores")
-            .json::<Vec<StoreName>>()
+            .json::<Vec<(User, StoreName)>>()
             .await
             .expect("Failed to decode list of stores")
     });
@@ -55,7 +55,7 @@ pub fn StoreList() -> Element {
                 h1 { "Stores" }
 
                 input {
-                    class: "new-store",
+                    class: "text-edit",
                     placeholder: "New store name",
                     value: "",
                     autofocus: "true",
@@ -71,27 +71,27 @@ pub fn StoreList() -> Element {
                 }
             }
             ul { id: "stores",
-                { store_names.cloned().unwrap_or_default().iter().map(|store_name| {
-                    store_list_element(store_name.clone())
+                { store_names.cloned().unwrap_or_default().iter().map(|(owner, store_name)| {
+                    store_list_element(owner.clone(), store_name.clone())
                 })}
             }
         }
     }
 }
 
-pub fn store_list_element(store_name: StoreName) -> Element {
+pub fn store_list_element(owner: User, store_name: StoreName) -> Element {
     rsx! {
         li {
             span { {store_name.clone()} }
             span {
                 Link {
-                    to: Route::StoreEdit { name: {store_name.clone()} },
+                    to: Route::StoreEdit { owner: {owner.clone()}, name: {store_name.clone()} },
                     "Edit"
                 }
             }
             span {
                 Link {
-                    to: Route::StoreView { name: {store_name.clone()} },
+                    to: Route::StoreView { owner: {owner.clone()}, name: {store_name.clone()} },
                     "Open"
                 }
             }
@@ -112,19 +112,84 @@ async fn create_new_store(name: &str) -> Result<(), reqwest::Error> {
 }
 
 #[component]
-pub fn StoreEdit(name: StoreName) -> Element {
+pub fn StoreEdit(owner: User, name: StoreName) -> Element {
+    let name_clone = name.clone();
+    let owner_clone = owner.clone();
+    let mut currency = use_resource(move || {
+        let name_clone = name_clone.clone();
+        let owner_clone = owner_clone.clone();
+        async move {
+            Client::builder()
+                .build()
+                .expect("Could not build client")
+                .get(format!(
+                    "{DESTINY_BASE_URL}/api/stores/{owner_clone}/{name_clone}/currency"
+                ))
+                .header("Accept", "application/json")
+                .send()
+                .await
+                .expect("Failed to fetch stores")
+                .json::<String>()
+                .await
+                .expect("Failed to decode list of stores")
+        }
+    });
+
+    let mut new_currency = use_signal(|| "".to_string());
+
+    let name_clone = name.clone();
+    let owner_clone = owner.clone();
+
     rsx! {
         div {
             id: "storeedit",
             header { class: "header",
                 h1 { {name} }
             }
+            div {
+                id: "property",
+                label { r#for: "currency", "Currency for estimates" }
+                input {
+                    id: "currency",
+                    class: "text-edit",
+                    r#type: "text",
+                    value: currency.cloned().unwrap_or_default(),
+                    disabled: currency.cloned().is_none(),
+                    oninput: move |evt| new_currency.set(evt.value()),
+                    onkeydown: move |evt| {
+                        let name_clone = name_clone.clone();
+                        let owner_clone = owner_clone.clone();
+                        async move {
+                            if evt.key() == Key::Enter && !new_currency.read().is_empty() {
+                                let _ = set_currency(owner_clone, name_clone, &new_currency.read()).await?;
+                                currency.restart();
+                                new_currency.set("".to_string());
+                            }
+                            Ok(())
+                        }
+                    }
+                }
+            }
         }
     }
 }
 
+async fn set_currency(owner: User, name: StoreName, currency: &str) -> Result<(), reqwest::Error> {
+    Client::builder()
+        .build()
+        .expect("Could not build client")
+        .put(format!(
+            "{DESTINY_BASE_URL}/api/stores/{owner}/{name}/currency"
+        ))
+        .json(currency)
+        .header("Accept", "application/json")
+        .send()
+        .await?;
+    Ok(())
+}
+
 #[component]
-pub fn StoreView(name: StoreName) -> Element {
+pub fn StoreView(owner: User, name: StoreName) -> Element {
     rsx! {
         div {
             id: "storeview",

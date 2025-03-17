@@ -1,6 +1,6 @@
 id: destiny-api-v1
 draft: true
-version: 0.0.2
+version: 0.0.8
 routes:
   - method: Options
     path: /api/stores
@@ -40,3 +40,118 @@ routes:
         };
         
         response
+
+  - method: Get
+    path: /api/stores/{owner}/{store}/currency
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
+        version: 11
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);      
+        let store_worker_name = "${request.path.owner}__${request.path.store}";
+        let worker = instance(store_worker_name);
+        let store = worker.store(user);
+        let result = store.get-currency();
+        
+        match result {
+          ok(currency) => { status: 200u64, body: currency },
+          err(error) => { status: 500u64, body: "Failed to get currency: ${error}" }
+        }
+
+  - method: Put
+    path: /api/stores/{owner}/{store}/currency
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
+        version: 11
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let store_worker_name = "${request.path.owner}__${request.path.store}";
+        let worker = instance(store_worker_name);
+        let store = worker.store(user);
+        let result = store.set-currency(request.body);
+
+        match result {
+          ok(_) => { status: 200u64, body: "" },
+          err(error) => { status: 500u64, body: "Failed to set currency: ${error}" }
+        }
+
+  - method: Get
+    path: /api/stores/{owner}/{store}/home-location
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
+        version: 11
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let store_worker_name = "${request.path.owner}__${request.path.store}";
+        let worker = instance(store_worker_name);
+        let store = worker.store(user);
+        let result = store.get-home-location();
+
+        match result {
+          ok(currency) => { status: 200u64, body: currency },
+          err(error) => { status: 500u64, body: "Failed to get home location: ${error}" }
+        }
+
+  - method: Put
+    path: /api/stores/{owner}/{store}/home-location
+    binding:
+      type: wit-worker
+      componentId:
+        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
+        version: 10
+      response: |
+        let email = "user@test.com";
+        let temp_worker = instance("__accounts_proxy");
+        let user = temp_worker.get-user-name(email);
+        let store_worker_name = "${request.path.owner}__${request.path.store}";
+        let worker = instance(store_worker_name);
+        let store = worker.store(user);
+        let result = store.set-home-location(request.body);
+
+        match result {
+          ok(_) => { status: 200u64, body: "" },
+          err(error) => { status: 500u64, body: "Failed to set home location: ${error}" }
+        }
+
+  - method: Get
+    path: "/{+file}"
+    binding:
+      bindingType: file-server
+      componentId:
+        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
+        version: 6
+      response: |
+        let file: string = request.path.file; 
+        "/web/public/${file}"
+
+  - method: Get
+    path: "/ui"
+    binding:
+      bindingType: file-server
+      componentId:
+        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
+        version: 6
+      response: |         
+        "/web/public/index.html"
+
+  - method: Get
+    path: "/ui/{+state}"
+    binding:
+      bindingType: file-server
+      componentId:
+        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
+        version: 6
+      response: |
+        "/web/public/index.html"

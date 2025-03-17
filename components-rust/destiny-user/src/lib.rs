@@ -8,17 +8,16 @@ use crate::bindings::exports::destiny::user_exports::destiny_user_api::*;
 use destiny_model::store_worker_name;
 use golem_rust::bindings::golem::api::host::{resolve_worker_id, worker_uri};
 use std::cell::RefCell;
-use std::collections::HashSet;
 use std::env;
 
 struct State {
-    stores: HashSet<StoreName>,
+    stores: Vec<(User, StoreName)>,
 }
 
 thread_local! {
     /// This holds the state of our application.
     static STATE: RefCell<State> = RefCell::new(State {
-        stores: HashSet::new()
+        stores: Vec::new()
     });
 }
 
@@ -27,11 +26,11 @@ struct Component;
 impl Guest for Component {
     fn create_store(name: StoreName) -> Result<(), Error> {
         STATE.with_borrow_mut(|state| {
-            if state.stores.contains(&name) {
+            if state.stores.iter().any(|(_, n)| n == &name) {
                 Err(Error::AlreadyExists)
             } else {
                 initialize_store_worker(&name);
-                state.stores.insert(name);
+                state.stores.push((self_user(), name));
                 Ok(())
             }
         })
@@ -49,14 +48,13 @@ impl Guest for Component {
         remote_api.blocking_get_user_name(&email)
     }
 
-    fn stores() -> Vec<StoreName> {
+    fn stores() -> Vec<(User, StoreName)> {
         STATE.with_borrow(|state| state.stores.iter().cloned().collect())
     }
 }
 
 fn initialize_store_worker(name: &StoreName) {
-    let owner_user: User =
-        env::var("GOLEM_WORKER_NAME").expect("GOLEM_WORKER_NAME is not available");
+    let owner_user: User = self_user();
     let worker_id = resolve_worker_id("destiny:store", &store_worker_name(&owner_user, name))
         .expect("Failed to resolve store worker ID");
     let target_uri = worker_uri(&worker_id);
@@ -68,6 +66,10 @@ fn initialize_store_worker(name: &StoreName) {
     if !success {
         panic!("Failed to initialize store worker - it already existed");
     }
+}
+
+fn self_user() -> User {
+    env::var("GOLEM_WORKER_NAME").expect("GOLEM_WORKER_NAME is not available")
 }
 
 bindings::export!(Component with_types_in bindings);

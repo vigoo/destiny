@@ -2,8 +2,12 @@
 mod bindings;
 mod logic;
 
+use crate::bindings::destiny::accounts_client::destiny_accounts_client::{
+    DestinyAccountsApi, GolemRpcUri,
+};
 use crate::bindings::exports::destiny::store_exports::destiny_store_api::*;
 use crate::logic::{DestinationExtensions, PreferencesExtensions};
+use golem_rust::bindings::golem::api::host::{resolve_worker_id, worker_uri};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
@@ -187,6 +191,16 @@ impl Guest for Component {
                 false
             }
         })
+    }
+
+    fn get_user_name(email: String) -> User {
+        let worker_id = resolve_worker_id("destiny:accounts", "__accounts_proxy")
+            .expect("Failed to resolve worker_id");
+        let target_uri = worker_uri(&worker_id);
+        let remote_api = DestinyAccountsApi::new(&GolemRpcUri {
+            value: target_uri.value,
+        });
+        remote_api.blocking_get_user_name(&email)
     }
 }
 

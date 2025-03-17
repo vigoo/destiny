@@ -89,6 +89,9 @@ interface destiny-store-api {
     }
 
     initialize: func(user: user) -> bool;
+
+    // Hack to proxy request to destiny:accounts
+    get-user-name: func(email: string) -> user;
 }
 
 world destiny-store {

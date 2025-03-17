@@ -7,6 +7,7 @@ components:
   destiny:ui:
     profiles:
       debug:
+        componentType: ephemeral
         files:
           - sourcePath: /Users/vigoo/projects/oss/destiny/target/dx/ui/release/web/public
             targetPath: /web/public
@@ -31,6 +32,7 @@ components:
         clean:
           - src/bindings.rs
       release:
+        componentType: ephemeral
         files:
           - sourcePath: ../../target/dx/ui/release/web/public
             targetPath: /web/public

@@ -7,7 +7,7 @@ interface destiny-user-api {
         already-exists
     }
 
-    stores: func() -> list<store-name>;
+    stores: func() -> list<tuple<user, store-name>>;
     create-store: func(name: store-name) -> result<_, error>;
 
     // Hack to proxy request to destiny:accounts
