@@ -1,7 +1,11 @@
 id: destiny-api-v1
 draft: true
-version: 0.0.1
+version: 0.0.2
 routes:
+  - method: Options
+    path: /api/stores
+    binding:
+      bindingType: cors-preflight
   - method: Get
     path: /api/stores
     binding:

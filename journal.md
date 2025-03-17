@@ -93,4 +93,7 @@ Failed to map input type Str(TypeStr) to any of the expected content types: "\"*
 `-H "Accept: application/json"` fixes it
 
 We cannot try this out at the moment from `dx serve` because of CORS. Can we fix that?
+Yes by adding a new route. Needs to delete deployment, register a new definition and deploy it again.
+
+
 

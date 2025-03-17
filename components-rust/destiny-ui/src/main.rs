@@ -1,5 +1,6 @@
 use destiny_model::destiny::common::types::StoreName;
 use dioxus::prelude::*;
+use reqwest::Client;
 
 const DESTINY_BASE_URL: &str = "http://localhost:9006";
 
@@ -32,7 +33,12 @@ fn App() -> Element {
 #[component]
 pub fn StoreList() -> Element {
     let mut store_names = use_resource(|| async move {
-        reqwest::get(format!("{DESTINY_BASE_URL}/api/stores"))
+        Client::builder()
+            .build()
+            .expect("Could not build client")
+            .get(format!("{DESTINY_BASE_URL}/api/stores"))
+            .header("Accept", "application/json")
+            .send()
             .await
             .expect("Failed to fetch stores")
             .json::<Vec<StoreName>>()
@@ -94,9 +100,12 @@ pub fn store_list_element(store_name: StoreName) -> Element {
 }
 
 async fn create_new_store(name: &str) -> Result<(), reqwest::Error> {
-    reqwest::Client::new()
+    Client::builder()
+        .build()
+        .expect("Could not build client")
         .post(format!("{DESTINY_BASE_URL}/api/stores"))
         .json(name)
+        .header("Accept", "application/json")
         .send()
         .await?;
     Ok(())
