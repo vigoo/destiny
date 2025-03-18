@@ -129,4 +129,18 @@ gives
 error: API Definition Service - Error: 500 Internal Server Error, Rib internal error: Global variables not allowed: user. Allowed: request
 ```
 
-no idea why?
+no idea why? - turns out it was a bug and got fixed.
+
+Ran into another issue where I wanted to change the `destiny:user` API to return the store owners as well - as a preparation to sharing stores
+between users - but Golem no longer allowed me to deploy the components due to the constraint check. Even if I delete all API deployments and definitions. This is also a bug.
+
+So started from clean state (and had to modify all the component IDs in the api yaml), then I get:
+
+```
+λ golem api definition new api.yaml
+error: API Definition Service - Error: 400 Bad Request, Unable to fetch component: e3453d02-6e40-4827-bc29-d1edf0d132dd#5, e3453d02-6e40-4827-bc29-d1edf0d132dd#5, b93c7c43-6dd7-437f-b126-35c7ccb18de5#11, b93c7c43-6dd7-437f-b126-35c7ccb18de5#11, b93c7c43-6dd7-437f-b126-35c7ccb18de5#11, b93c7c43-6dd7-437f-b126-35c7ccb18de5#10, 185c45ec-5c2d-460c-9415-093046f14142#6, 185c45ec-5c2d-460c-9415-093046f14142#6, 185c45ec-5c2d-460c-9415-093046f14142#6
+```
+
+=> this is redundant 
+=> not showing which endpoint is the problem
+=> the real reason is that the component versions resetted by the clean start

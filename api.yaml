@@ -11,8 +11,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 3e74449d-2842-41a3-b94c-b68f2b1e1c06
-        version: 5
+        componentId: e3453d02-6e40-4827-bc29-d1edf0d132dd # destiny:user
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -25,8 +25,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 3e74449d-2842-41a3-b94c-b68f2b1e1c06
-        version: 5
+        componentId: e3453d02-6e40-4827-bc29-d1edf0d132dd # destiny:user
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -46,8 +46,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
-        version: 11
+        componentId: b93c7c43-6dd7-437f-b126-35c7ccb18de5 # destiny:store
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -67,8 +67,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
-        version: 11
+        componentId: b93c7c43-6dd7-437f-b126-35c7ccb18de5 # destiny:store
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -88,8 +88,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
-        version: 11
+        componentId: b93c7c43-6dd7-437f-b126-35c7ccb18de5 # destiny:store
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -109,8 +109,8 @@ routes:
     binding:
       type: wit-worker
       componentId:
-        componentId: 57739f3c-8577-4273-9d0d-d322043683cc
-        version: 10
+        componentId: b93c7c43-6dd7-437f-b126-35c7ccb18de5 # destiny:store
+        version: 0
       response: |
         let email = "user@test.com";
         let temp_worker = instance("__accounts_proxy");
@@ -130,8 +130,8 @@ routes:
     binding:
       bindingType: file-server
       componentId:
-        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
-        version: 6
+        componentId: "185c45ec-5c2d-460c-9415-093046f14142" # destiny:ui
+        version: 0
       response: |
         let file: string = request.path.file; 
         "/web/public/${file}"
@@ -141,8 +141,8 @@ routes:
     binding:
       bindingType: file-server
       componentId:
-        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
-        version: 6
+        componentId: "185c45ec-5c2d-460c-9415-093046f14142" # destiny:ui
+        version: 0
       response: |         
         "/web/public/index.html"
 
@@ -151,7 +151,7 @@ routes:
     binding:
       bindingType: file-server
       componentId:
-        componentId: "0996a22f-741b-42d4-af24-2e76889f14d0"
-        version: 6
+        componentId: "185c45ec-5c2d-460c-9415-093046f14142" # destiny:ui
+        version: 0
       response: |
         "/web/public/index.html"
